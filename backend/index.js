@@ -3,6 +3,7 @@ require("dotenv").config();
 const { sequelize, connectDB } = require("./db/database");
 const userRoutes = require("./routes/routes");
 const cors = require('cors'); // Import the cors package
+const fileUpload = require("./helper/multer");
 
 
 const app = express();
@@ -10,6 +11,26 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json()); 
 // app.use(express.urlenco 21ded({ extended: true }));
+
+
+app.use("/uploads", (req, res, next) => {
+  express.static(path.resolve(__dirname, "uploads"))(req, res, next);
+});
+
+
+// POST /upload route
+app.post('/upload', fileUpload("files"), (req, res) => {
+
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: "No files uploaded" });
+  }
+
+  res.json({
+    message: "Files uploaded successfully",
+    files: req.files, 
+    });
+});
+
 
 const corsOptions = {
   credentials: true,

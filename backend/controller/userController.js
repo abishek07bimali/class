@@ -12,9 +12,12 @@ const getAllUsers = async (req, res) => {
 };
 
 const createUser = async (req, res) => {
+    console.log(req.files?.length ? req.files[0].path : null)
     try {
         const { username, email, password } = req.body;
-        const newUser = await User.create({ username, email, password });
+        let image = req.files?.length ? req.files[0].path : null;
+
+        const newUser = await User.create({ username, email, password, image });
         res.status(201).json({ success: true, newUser: newUser });
     } catch (error) {
         res.status(400).json({ error: error });
