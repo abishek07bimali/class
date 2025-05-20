@@ -13,6 +13,8 @@ const getAllUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
     console.log(req.files?.length ? req.files[0].path : null)
+    console.log(req.files)
+    console.log(req.body)
     try {
         const { username, email, password } = req.body;
         let image = req.files?.length ? req.files[0].path : null;

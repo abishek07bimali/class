@@ -5,6 +5,7 @@ const LoginForm = () => {
         username: "",
         email: "",
         password: "",
+        files: "",
     });
 
     const [users, setUsers] = useState([]);
@@ -15,14 +16,23 @@ const LoginForm = () => {
     };
 
     const handleSubmit = async (e) => {
+        const formDataToSend = new FormData();
+        formDataToSend.append("username", formData.username);
+        formDataToSend.append("email", formData.email);
+        formDataToSend.append("password", formData.password);
+        formDataToSend.append("files", formData.files);
+
         e.preventDefault();
         try {
             const response = await fetch("http://localhost:5000/api/users", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    // "Content-Type": "application/json",
+                    "Content-Type": "multipart/form-data",
+
                 },
                 body: JSON.stringify(formData),
+                // body: JSON.stringify(formData),
             });
             const data = await response.json();
             console.log("Server Response:", data);
@@ -128,6 +138,16 @@ const LoginForm = () => {
                         value={formData.password}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
+                        required
+                    />
+                </div>
+                <div className="mb-4">
+                    <label className="block text-gray-700">Image</label>
+                    <input
+                        type="file"
+                        name="files"
+                        // value={formData.files}
+                        onChange={(e) => setFormData({ ...formData, files: e.target.files[0] })} className="w-full p-2 border rounded"
                         required
                     />
                 </div>

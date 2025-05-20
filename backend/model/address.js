@@ -34,7 +34,7 @@ const Address = sequelize.define(
 
 // Define relationships
 const User = require("./user");
-User.hasMany(Address, { foreignKey: "userId" });
+// User.hasMany(Address, { foreignKey: "userId" });
 Address.belongsTo(User, { foreignKey: "userId" });
 
 module.exports = Address;
