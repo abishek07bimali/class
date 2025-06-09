@@ -1,42 +1,29 @@
 const express = require("express");
 require("dotenv").config();
-const { sequelize, connectDB } = require("./db/database");
 const userRoutes = require("./routes/routes");
 const cors = require('cors'); 
-const fileUpload = require("./helper/multer");
-
+const {sequelize, connectDB } = require("./db/database");
 
 const app = express();
-const port = process.env.PORT || 3000;
-
 app.use(express.json()); 
-// app.use(express.urlenco 21ded({ extended: true }));
 
-app.use("/uploads", (req, res, next) => {
-  express.static(path.resolve(__dirname, "uploads"))(req, res, next);
-});
 
-// POST /upload route
-app.post('/upload', fileUpload("files"), (req, res) => {
+const port = process.env.PORT;
 
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ error: "No files uploaded" });
-  }
+app.use('/uploads', express.static('uploads'));
 
-  res.json({
-    message: "Files uploaded successfully",
-    files: req.files, 
-    });
-});
-
+// app.use("/uploads", (req, res, next) => {
+//   express.static(path.resolve(__dirname, "uploads"))(req, res, next);
+// });
 
 const corsOptions = {
   credentials: true,
   origin: ['http://localhost:5173', 'http://localhost:80'] 
 };
 app.use(cors(corsOptions));
-
-app.use("/api", userRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/pract",require('./routes/pracRoute'));
+app.use("/apiv1/testing", require('./routes/testRoute'))
 
 app.get("/", (req, res) => {
   res.send("Backend is running!");
@@ -49,5 +36,4 @@ const startServer = async () => {
     console.log(`Server is running on port ${port}`);
   });
 };
-
 startServer();

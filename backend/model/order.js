@@ -14,7 +14,7 @@ const Order = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "Users", 
+        model: "Users",
         key: "id",
       },
       onUpdate: "CASCADE",
@@ -29,6 +29,10 @@ const Order = sequelize.define(
       allowNull: false,
       defaultValue: "pending",
     },
+    testAtribute: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     tableName: "orders",
@@ -42,3 +46,15 @@ User.hasMany(Order, { foreignKey: "userId" });
 Order.belongsTo(User, { foreignKey: "userId" });
 
 module.exports = Order;
+
+
+
+
+// Student.belongsToMany(Course, {
+//   through: "Enrollments",
+//   foreignKey: "studentId",
+// });
+// Course.belongsToMany(Student, {
+//   through: "Enrollments",
+//   foreignKey: "courseId",
+// });

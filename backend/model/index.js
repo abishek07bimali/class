@@ -4,7 +4,7 @@
 
 // const syncDatabase = async () => {
 //   try {
-//     await sequelize.sync({ alter: true }); // Ensures tables are up to date
+//     await sequelize.sync({ alter: true });
 //     console.log(" Database synchronized successfully!");
 //   } catch (error) {
 //     console.error(" Error syncing database:", error);

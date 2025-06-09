@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../db/database");
 
-const Address = sequelize.define(
-  "Address",
+const Products = sequelize.define(
+  "Products",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -27,14 +27,14 @@ const Address = sequelize.define(
     },
   },
   {
-    tableName: "addresss",
+    tableName: "products",
     timestamps: true,
   }
 );
 
 // Define relationships
 const User = require("./user");
-User.hasMany(Address, { foreignKey: "userId" });
-Address.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Products, { foreignKey: "userId" });
+Products.belongsTo(User, { foreignKey: "userId" });
 
-module.exports = Address;
+module.exports = Products;

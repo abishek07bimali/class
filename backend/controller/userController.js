@@ -1,6 +1,10 @@
 const User = require("../model/user");
 const Order = require("../model/order");
 const Address = require("../model/address");
+const Products = require("../model/product");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 const getAllUsers = async (req, res) => {
     try {
@@ -11,30 +15,71 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+
+
+
 const createUser = async (req, res) => {
-    console.log(req.files?.length ? req.files[0].path : null)
-    console.log(req.files)
     console.log(req.body)
+    console.log(req.files)
     try {
         const { username, email, password } = req.body;
-        let image = req.files?.length ? req.files[0].path : null;
 
-        const newUser = await User.create({ username, email, password, image });
+        // password encryption
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const newUser = await User.create({ username, email, password: hashedPassword });
         res.status(201).json({ success: true, newUser: newUser });
     } catch (error) {
         res.status(400).json({ error: error });
     }
 };
 
+
+const loginUser = async (req, res) => {
+    console.log(req.body)
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+        const token = jwt.sign(
+            { id: user.id, email: user.email,role: user.role },
+            process.env.JWT_TOKEN,
+            { expiresIn: '24h' }
+        );
+
+        return res.status(200).json({
+            success: true, message: 'Login successful', token, user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        res.status(400).json({ error: error });
+    }
+};
+
+
+
+
+
 const updateUser = async (req, res) => {
     console.log(req.params.id)
+    const userId = req.params.id;
     try {
-        const userExist = User.findByPk(req.params.id);
+        const userExist = User.findByPk(userId);
         if (userExist) {
             console.log("user exist")
             const { username } = req.body;
-            const updateduser = await User.update({ username: username }, { where: { id: req.params.id } });
-            res.status(201).json(updateduser);
+            const updateduser = await User.update({ username: username }, { where: { id: userId } });
+            res.status(201).json({ updateduser });
         }
         else {
             console.log("user donot exist")
@@ -46,10 +91,11 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     console.log(req.params.id)
+    const userId = req.params.id;
     try {
-        const userExist = User.findByPk(req.params.id)
+        const userExist = User.findByPk(userId)
         if (userExist) {
-            User.destroy({ where: { id: req.params.id } })
+            User.destroy({ where: { id: userId } })
             return res.status(201).json("user deleted");
         }
         return res.json("user cannot be deleted")
@@ -59,6 +105,8 @@ const deleteUser = async (req, res) => {
         console.log("failed")
     }
 }
+
+
 
 
 
@@ -112,6 +160,15 @@ const createAddress = async (req, res) => {
     }
 };
 
+const getAllProducts = async (req, res) => {
+    try {
+        const products = await Products.findAll();
+        res.json({ success: true, products: products });
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching products" });
+    }
+};
+
 
 // const updateUser = async (req, res) => {
 //     console.log(req.params.id)
@@ -141,4 +198,4 @@ const createAddress = async (req, res) => {
 //     }
 // };
 
-module.exports = { getAllUsers, createUser, updateUser, deleteUser, createOrder, createAddress }
+module.exports = { getAllUsers, createUser, updateUser, deleteUser, createOrder, createAddress, getAllProducts, loginUser }

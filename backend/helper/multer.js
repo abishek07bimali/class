@@ -2,16 +2,16 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      return cb(null, "./uploads");
+        return cb(null, "./uploads");
     },
     filename: (req, file, cb) => {
-      const fileName = file?.originalname?.replace(/\s/g, "_");
-      cb(null, fileName);
+        const fileName = file?.originalname?.replace(/\s/g, "_");
+        cb(null, fileName);
     },
-  });
+});
 
 var fileFilter = (req, file, callback) => {
-    if (!file.originalname.match(/\.(pdf|epub|djvu|PFD|EPUB|DJVU|png)$/)) {
+    if (!file.originalname.match(/\.(pdf|jpg|JPEG|png)$/)) {
         return callback(new Error('Invalid file format'), false)
     }
     callback(null, true)
@@ -35,5 +35,7 @@ const fileUpload = (fieldName) => (req, res, next) => {
         next();
     });
 };
+
+
 
 module.exports = fileUpload
