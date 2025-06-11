@@ -6,14 +6,14 @@ const jwt = require('jsonwebtoken');
 
 const createUsers = async (req, res) => {
     console.log(req.body)
-    console.log(  req.files?.length ? req.files[0].path : null)
+    console.log(req.files?.length ? req.files[0].path : null)
     try {
         // JOI VALIDATION
         const { userName, email, password } = req.body;
         if (!userName || !email || !password) {
             return res.json({ success: false, message: "please enter al fields!!" })
         }
-        const image=req.files?.length ? req.files[0].path : null;
+        const image = req.files?.length ? req.files[0].path : null;
 
         const userExist = await User.findOne({ where: { username: userName } });
         if (userExist) {
@@ -21,8 +21,9 @@ const createUsers = async (req, res) => {
         }
         const salt = await bcrypt.genSalt(10);
         const newpassword = await bcrypt.hash(password, salt)
-        const newuser = await User.create({ 
-            username: userName, email, password: newpassword,image });
+        const newuser = await User.create({
+            username: userName, email, password: newpassword, image
+        });
         res.status(201).json({ success: true, newuser, message: "user created !!" });
     } catch (error) {
         res.status(400).json({ error: error });
@@ -99,10 +100,40 @@ const updateUser = async (req, res) => {
         if (userExist) {
             console.log("user exist")
             const { username, email, password } = req.body;
+            const image = req.files?.length ? req.files[0].path : userExist.image;
+            let newpassword = userExist.password;
+            if (password) {
+                const salt = await bcrypt.genSalt(10);
+                newpassword = await bcrypt.hash(password, salt);
+            }
 
-            const salt = await bcrypt.genSalt(10);
-            const newpassword = await bcrypt.hash(password, salt);
-
+            const updateduser = await User.update(
+                { username, password: newpassword, email, image },
+                { where: { id: userId } });
+            res.status(201).json({
+                success: true,
+                message: "user updated!!", updateduser
+            });
+        }
+        else {
+            res.json({ message: "user donot exist" })
+        }
+    } catch (error) {
+        res.status(400).json({ error: error });
+    }
+};
+const updateUserBySelf = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const userExist = await User.findByPk(userId);
+        if (userExist) {
+            console.log("user exist")
+            const { username, email, password } = req.body;
+            let newpassword = userExist.password;
+            if (password) {
+                const salt = await bcrypt.genSalt(10);
+                newpassword = await bcrypt.hash(password, salt);
+            }
             const updateduser = await User.update(
                 { username, password: newpassword, email },
                 { where: { id: userId } });
@@ -119,9 +150,10 @@ const updateUser = async (req, res) => {
     }
 };
 
+
 const loginUser = async (req, res) => {
     // console.log(req.body)
-    
+
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ where: { email: email } });
@@ -152,5 +184,5 @@ const loginUser = async (req, res) => {
 };
 
 module.exports = {
-    createUsers, updateUser, deleteUsers, getAllUsers, findUserById, loginUser
+    createUsers, updateUser, updateUserBySelf, deleteUsers, getAllUsers, findUserById, loginUser
 }

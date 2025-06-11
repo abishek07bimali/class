@@ -27,21 +27,33 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    
+
     password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    
+
     role: {
-      type: DataTypes.ENUM('user','admin'),
+      type: DataTypes.ENUM('user', 'admin'),
       defaultValue: 'user',
-    }
+    },
+    addressID: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+      references: {
+        model: "Address",
+        key: "id",
+      },
+    },
   },
   {
     tableName: "users",
     timestamps: true,
   }
 );
+const Address = require("./address");
+Address.hasMany(User, { foreignKey: "addressID" });
+User.belongsTo(Address, { foreignKey: "addressID" });
 
 module.exports = User;

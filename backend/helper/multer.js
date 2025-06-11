@@ -25,17 +25,15 @@ const fileUpload = (fieldName) => (req, res, next) => {
         if (err) {
             return res.status(400).json({ error: err.message });
         }
-        if (req.files) {
-            console.log("Uploaded Files:");
-            req.files.forEach(file => {
-                console.log(`- ${file.originalname} -> ${file.filename}`);
-            });
-        }
+    if (req.files) {
+        console.log("Uploaded Files:");
+        req.files.forEach(file => {
+            console.log(`- ${file.originalname} -> ${file.filename}`);
+        });
+    }
 
         next();
     });
 };
-
-
 
 module.exports = fileUpload
