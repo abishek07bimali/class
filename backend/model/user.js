@@ -39,10 +39,10 @@ const User = sequelize.define(
     },
     addressID: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      unique: true,
+      allowNull: true,
+      unique: false,
       references: {
-        model: "Address",
+        model: "addresss",
         key: "id",
       },
     },
@@ -57,3 +57,4 @@ Address.hasMany(User, { foreignKey: "addressID" });
 User.belongsTo(Address, { foreignKey: "addressID" });
 
 module.exports = User;
+

@@ -6,27 +6,32 @@ const jwt = require('jsonwebtoken');
 
 const createUsers = async (req, res) => {
     console.log(req.body)
+
     console.log(req.files?.length ? req.files[0].path : null)
+
     try {
         // JOI VALIDATION
         const { userName, email, password } = req.body;
         if (!userName || !email || !password) {
             return res.json({ success: false, message: "please enter al fields!!" })
         }
-        const image = req.files?.length ? req.files[0].path : null;
-
+        const image = req.files?.length ? req.files[0].path : null;y
         const userExist = await User.findOne({ where: { username: userName } });
         if (userExist) {
-            res.json({ message: "user already exist use different username " })
+            return res.json({ message: "user already exist use different username " })
+        }
+        const emailExist = await User.findOne({ where: { email: email } });
+        if (emailExist) {
+            return res.json({ message: "user already exist use different email " })
         }
         const salt = await bcrypt.genSalt(10);
         const newpassword = await bcrypt.hash(password, salt)
         const newuser = await User.create({
             username: userName, email, password: newpassword, image
         });
-        res.status(201).json({ success: true, newuser, message: "user created !!" });
+        return res.status(201).json({ success: true, newuser, message: "user created !!" });
     } catch (error) {
-        res.status(400).json({ error: error });
+        return res.status(400).json({ error: error });
     }
 };
 
@@ -34,9 +39,9 @@ const getAllUsers = async (req, res) => {
     console.log(req.headers.authorization)
     try {
         const users = await User.findAll({ attributes: { exclude: ['password', 'id'] } });
-        res.json({ success: true, users: users });
+        return res.json({ success: true, users: users });
     } catch (error) {
-        res.status(500).json({ error: "Error fetching users" });
+        return res.status(500).json({ error: "Error fetching users" });
     }
 };
 
@@ -56,12 +61,12 @@ const deleteUsers = async (req, res) => {
         if (userExist) {
             const deleteUser = await User.destroy(
                 { where: { id: userId } });
-            res.json({
+            return res.json({
                 success: true,
                 message: "User deleted", deleteUser
             })
         } else {
-            res.json({ success: false, message: "user not found" })
+            return res.json({ success: false, message: "user not found" })
         }
     } catch (error) {
         res.json({ error: error })
@@ -74,7 +79,7 @@ const findUserById = async (req, res) => {
     try {
         const userExist = await User.findOne({ where: { id: userId } });
         if (userExist) {
-            res.json({ userExist: { id: userExist.id } })
+            return res.json({ userExist: { id: userExist.id } })
         } else {
             res.json({ message: "User not found!" })
         }
@@ -93,14 +98,17 @@ const findByid = async (req, res) => {
         res.json({ message: "" })
     }
 }
+
 const updateUser = async (req, res) => {
-    const userId = req.params.id;
+    const userId = req.user.id;
     try {
         const userExist = await User.findByPk(userId);
         if (userExist) {
             console.log("user exist")
             const { username, email, password } = req.body;
+
             const image = req.files?.length ? req.files[0].path : userExist.image;
+
             let newpassword = userExist.password;
             if (password) {
                 const salt = await bcrypt.genSalt(10);
@@ -110,18 +118,19 @@ const updateUser = async (req, res) => {
             const updateduser = await User.update(
                 { username, password: newpassword, email, image },
                 { where: { id: userId } });
-            res.status(201).json({
+            return res.status(201).json({
                 success: true,
                 message: "user updated!!", updateduser
             });
         }
         else {
-            res.json({ message: "user donot exist" })
+            return res.json({ message: "user donot exist" })
         }
     } catch (error) {
         res.status(400).json({ error: error });
     }
 };
+
 const updateUserBySelf = async (req, res) => {
     const userId = req.user.id;
     try {
@@ -137,19 +146,18 @@ const updateUserBySelf = async (req, res) => {
             const updateduser = await User.update(
                 { username, password: newpassword, email },
                 { where: { id: userId } });
-            res.status(201).json({
+            return res.status(201).json({
                 success: true,
                 message: "user updated!!", updateduser
             });
         }
         else {
-            res.json({ message: "user donot exist" })
+            return res.json({ message: "user donot exist" })
         }
     } catch (error) {
         res.status(400).json({ error: error });
     }
 };
-
 
 const loginUser = async (req, res) => {
     // console.log(req.body)

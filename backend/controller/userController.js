@@ -20,7 +20,8 @@ const getAllUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
     console.log(req.body)
-    console.log(req.files)
+    console.log(req.body)
+    // console.log(req.files)
     try {
         const { username, email, password } = req.body;
 
@@ -29,7 +30,7 @@ const createUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUser = await User.create({ username, email, password: hashedPassword });
-        res.status(201).json({ success: true, newUser: newUser });
+        res.status(201).json({ success: true, newUser: newUser, message:"user created" });
     } catch (error) {
         res.status(400).json({ error: error });
     }

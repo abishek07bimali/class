@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
 });
 
 var fileFilter = (req, file, callback) => {
-    if (!file.originalname.match(/\.(pdf|jpg|JPEG|png)$/)) {
+    if (!file.originalname.match(/\.(pdf|jpg|JPEG|png|jpeg)$/)) {
         return callback(new Error('Invalid file format'), false)
     }
     callback(null, true)

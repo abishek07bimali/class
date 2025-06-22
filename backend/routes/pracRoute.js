@@ -5,7 +5,7 @@ const fileUpload = require("../helper/multer");
 const authGuard = require("../middleware/authguagrd");
 const isAdmin = require("../middleware/isAdmin");
 
-express.post("/createUsers",fileUpload("profile"), createUsers);
+express.post("/createUsers",fileUpload('image'), createUsers);
 
 
 
@@ -14,8 +14,14 @@ express.get("/getallusers",authGuard,isAdmin ,getAllUsers)
 
 express.get("/getusers",authGuard,findUserById)
 
-express.put("/updateUsers/:id", updateUser);
+express.put("/updateUsers",authGuard, fileUpload('image'), updateUser);
+
+
+
 express.put("/selfUpdate",authGuard, updateUserBySelf);
+
+
+
 
 express.delete("/deleteUsers/:id",authGuard,isAdmin, deleteUsers);
 
